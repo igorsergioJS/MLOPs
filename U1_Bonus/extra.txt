@@ -1,0 +1,11 @@
+Python 3.10.10
+
+sudo apt install jupyter-core
+
+pip install nbconvert
+
+pip install ipykernel
+
+python -m ipykernel install --user --name venv --display-name "Python (venv)"
+
+jupyter nbconvert --execute --to notebook --inplace notebooks/noise_experiments.ipynb
