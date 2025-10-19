@@ -59,7 +59,7 @@ Em ambientes Linux foi necessário instalar `jupyter-core` previamente (`sudo ap
 
 Os valores abaixo correspondem a `BCEWithLogitsLoss`, que apresentou comportamento numericamente quase idêntico ao de `BCELoss` (diferenças < 1e-5 em todas as métricas). Optou-se por relato único para evitar repetição.
 
-### make_classification (problema linearmente separavel)
+### make_classification (problema linearmente separável)
 
 | Ruido | Accuracy | Precision | Recall | F1 |
 | ----- | -------- | --------- | ------ | -- |
@@ -71,7 +71,7 @@ Os valores abaixo correspondem a `BCEWithLogitsLoss`, que apresentou comportamen
 
 Mesmo com 40% de ruído a regressão logística manteve desempenho aceitável, mas a fronteira deixa de ser nítida e a taxa de falsos positivos cresce (vide matriz de confusão abaixo).
 
-### make_circles (fronteira nao linear)
+### make_circles (fronteira não linear)
 
 | Ruido | Accuracy | Precision | Recall | F1 |
 | ----- | -------- | --------- | ------ | -- |
@@ -85,50 +85,40 @@ Modelos lineares não conseguem capturar a topologia circular: o ganho de acurá
 
 ### make_moons (duas luas intercaladas)
 
-| Ruido | Accuracy | Precision | Recall | F1 |
+| Ruído | Accuracy | Precision | Recall | F1 |
 | ----- | -------- | --------- | ------ | -- |
 | 0.00  | 0.8833   | 0.9059    | 0.8556 | 0.8800 |
-| 0.40  | 0.6278   | 0.6267    | 0.5465 | 0.5839 |
+| 0.10  | 0.7944   | 0.8022    | 0.7935 | 0.7978 |
 | 0.20  | 0.7556   | 0.7263    | 0.7931 | 0.7582 |
-Há queda consistente conforme o ruído cresce, mas o modelo ainda melhora sobre a baseline aleatória (50%).
+| 0.30  | 0.7167   | 0.7126    | 0.7045 | 0.7086 |
 | 0.40  | 0.6278   | 0.6267    | 0.5465 | 0.5839 |
 
-Ha queda consistente conforme o ruido cresce, mas o modelo ainda melhora sobre a baseline aleatoria (50%).
-- `BCELoss` requer saídas sigmoides e opera em probabilidades. Sob baixos níveis de ruído, apresentou pequenas oscilações numéricas devido à saturação da sigmoid, mas sem divergências.
-- `BCEWithLogitsLoss` combina sigmoid interna com BCE e evita underflow/overflow. Nos logs de treinamento, as curvas de perda são praticamente coincidentes e não houve diferença significativa de performance (variação < 0.001 em todas as métricas). Para implementações robustas recomenda-se usar `BCEWithLogitsLoss` como padrão.
+Há uma queda consistente conforme o ruído cresce, mas o modelo ainda supera a baseline aleatória (50%).
 
-- `BCELoss` requer saidas sigmoides e opera em probabilidades. Sob baixos niveis de ruido, apresentou pequenas oscilacoes numericas devido a saturacao da sigmoid, mas sem divergencias.
-- `BCEWithLogitsLoss` combina sigmoid interna com BCE e evita underflow/overflow. Nos logs de treinamento, as curvas de perda sao praticamente coincidentes e nao houve diferenca significativa de performance (variacao < 0.001 em todas as metricas). Para implementacoes robustas recomenda-se usar `BCEWithLogitsLoss` como padrao.
-Frente à quantidade de figuras geradas, abaixo estão as que melhor resumem as discussões (cada par combina fronteira de decisão e matriz de confusão com o mesmo nível de ruído):
+- `BCELoss` requer que a saída seja uma probabilidade (aplicar sigmoid explicitamente). Em baixos níveis de ruído pode ocorrer pequena instabilidade numérica devido à saturação da sigmoid.
+- `BCEWithLogitsLoss` combina a função sigmoid internamente com a BCE, oferecendo maior estabilidade numérica (evita underflow/overflow) e é recomendado como padrão em implementações robustas.
+
+Frente à quantidade de figuras geradas, abaixo estão as que melhor resumem as discussões — cada par combina fronteira de decisão e matriz de confusão com o mesmo nível de ruído:
 
 ![Decision boundary classification ruído 0.00](results/classification_decision_boundary_noise_0.00_BCEWithLogitsLoss.png)
 ![Confusion classification ruído 0.00](results/classification_confusion_noise_0.00_BCEWithLogitsLoss.png)
 ![Decision boundary circles ruído 0.40](results/circles_decision_boundary_noise_0.40_BCEWithLogitsLoss.png)
 ![Confusion circles ruído 0.40](results/circles_confusion_noise_0.40_BCEWithLogitsLoss.png)
 ![Decision boundary moons ruído 0.00](results/moons_decision_boundary_noise_0.00_BCEWithLogitsLoss.png)
-![Loss curve moons ruído 0.30](results/moons_loss_curve_noise_0.30_BCEWithLogitsLoss.png)
-![Confusion circles ruido 0.10](results/circles_confusion_noise_0.10_BCEWithLogitsLoss.png)
-Use o arquivo `results/metrics_summary.csv` como referência cruzada para cada path caso precise incluir outras figuras na apresentação.
-![Loss curve moons ruido 0.30](results/moons_loss_curve_noise_0.30_BCEWithLogitsLoss.png)
+![Confusion moons ruído 0.00](results/moons_confusion_noise_0.00_BCEWithLogitsLoss.png)
 
-## Conclusoes
+## Conclusões
 - Modelos lineares respondem bem a dados quase lineares (`make_classification`), mas se degradam de forma quase linear com ruído crescente.
 - Em distribuições não lineares (`make_circles` e `make_moons`), o limite do modelo fica evidente: a fronteira de decisão não acompanha a geometria original e parte da melhoria aparente ocorre pela destruição da estrutura pelos ruídos maiores.
 - As métricas de precisão e recall degradam de forma similar, indicando que o ruído introduz erros equilibrados (sem viés marcante para falso positivo ou negativo).
 - `BCEWithLogitsLoss` é preferível por estabilidade numérica, mesmo quando o ganho em métricas é marginal.
-- `BCEWithLogitsLoss` e preferivel por estabilidade numerica, mesmo quando o ganho em metricas eh marginal.
 
-## Proximos passos sugeridos
-1. Avaliar modelos não lineares (MLP raso ou kernel methods) para `make_circles` e `make_moons`.
-2. Explorar estratégias de regularização (L2, dropout) para verificar impacto na estabilidade das perdas.
-3. Incluir análise de matriz de confusão normalizada ao longo das épocas para identificar fases críticas de convergência.
-3. Incluir analise de matriz de confusao normalizada ao longo das epocas para identificar fases criticas de convergencia.
+
 
 ## Video da apresentacao
-## Vídeo da apresentação
 
-- Link para vídeo (até 10 min): **insira aqui**.
-- Link para video (ate 10 min): **insira aqui**.
+- Link para vídeo (até 10 min): **[Bônus MLOPs](https://youtu.be/aljD2p9K33A)**.
+
 
 ## Checklist do desafio
 - [x] Dataset sintético gerado com funções do scikit-learn e ruído variável.
@@ -137,5 +127,5 @@ Use o arquivo `results/metrics_summary.csv` como referência cruzada para cada p
 - [x] Comparação entre `BCELoss` e `BCEWithLogitsLoss` documentada.
 - [x] Métricas accuracy, precision, recall, f1-score e matrizes de confusão registradas.
 - [x] Fronteiras de decisão, matrizes de confusão e curvas de perda salvas em `results/`.
-- [ ] Vídeo de apresentação anexado ao README.
-- [ ] Video de apresentacao anexado ao README.
+- [x] Vídeo de apresentação anexado ao README.
+
