@@ -2,6 +2,8 @@
 
 Este repositório documenta o experimento desenvolvido no notebook `trabalho01_U2.ipynb`, que implementa o checklist da disciplina de MLOps utilizando o dataset **MNIST** e uma arquitetura **LeNet-like**. O fluxo completo envolve preparação do dataset, definição da arquitetura, instrumentação com hooks para capturar ativações intermediárias, treinamento monitorado e análise dos resultados.
 
+Link da explicação em vídeo: https://youtu.be/9844X_QFVqo
+
 ## Requisitos e preparação do ambiente
 
 - Python 3.9.13
